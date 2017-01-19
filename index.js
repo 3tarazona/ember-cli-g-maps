@@ -5,8 +5,23 @@ module.exports = {
   name: 'ember-cli-g-maps',
 
   // Include Gmaps code in consuming app
-  included: function(app) {
-    this._super.included(app);
+  included: function() {
+    this._super.included(...arguments);
+
+    var app;
+
+    // If the addon has the _findHost() method (in ember-cli >= 2.7.0), we'll just
+    // use that.
+    if (typeof this._findHost === 'function') {
+      app = this._findHost();
+    } else {
+      // Otherwise, we'll use this implementation borrowed from the _findHost()
+      // method in ember-cli.
+      var current = this;
+      do {
+        app = current.app || app;
+      } while (current.parent.parent && (current = current.parent));
+    }
 
     app.import(app.bowerDirectory + '/gmaps-for-apps/gmaps.js');
   },
